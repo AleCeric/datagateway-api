@@ -290,6 +290,7 @@ def create_api_endpoints(flask_app, api, specs):
             "datasets": "Dataset",
             "documents": "Document",
             "instruments": "Instrument",
+            "techniques": "Technique",
         }
 
         for endpoint_name, entity_name in search_api_entity_endpoints.items():
