@@ -3,7 +3,10 @@ import json
 import logging
 
 from pydantic import ValidationError
+import requests
+from flask import request
 
+from datagateway_api.src.common.config import Config
 from datagateway_api.src.common.exceptions import (
     BadRequestError,
     MissingRecordError,
@@ -12,10 +15,12 @@ from datagateway_api.src.common.exceptions import (
 from datagateway_api.src.common.filter_order_handler import FilterOrderHandler
 from datagateway_api.src.search_api.filters import (
     SearchAPIIncludeFilter,
-    SearchAPIWhereFilter,
+    SearchAPIWhereFilter, SearchAPISkipFilter, SearchAPILimitFilter,
 )
 import datagateway_api.src.search_api.models as models
+from datagateway_api.src.search_api.nested_where_filters import NestedWhereFilters
 from datagateway_api.src.search_api.query import SearchAPIQuery
+from datagateway_api.src.search_api.query_filter_factory import SearchAPIQueryFilterFactory
 from datagateway_api.src.search_api.session_handler import (
     client_manager,
     SessionHandler,
@@ -23,6 +28,92 @@ from datagateway_api.src.search_api.session_handler import (
 
 
 log = logging.getLogger()
+
+
+def scoring_assignment(method):
+    """
+    Decorator to handle scoring assignment to each records of the list returned by a method that return `panosc_data`.
+    The scoring is triggered when the filter keyword `query` is used.
+    Based on the configuration (in `config.json`) "0" score can be added if scoring has not been triggered
+
+    :param method: The method for the endpoint
+    :raises: Any exception raised by the execution of `method` and a SearchAPIError if `query` is used but
+    `scoring_api_url` is not configured
+    """
+    @wraps(method)
+    def wrapper_scoring_handling(*args, **kwargs):
+        entity_name = args[0]
+        filters = args[1]
+        filters_dict = request.args.get('filter', default={}, type=json.loads)
+        # Scoring is triggered by the `query` keyword
+        if "query" in filters_dict:
+            if Config.config.search_api.scoring_api_url:
+                query = filters_dict['query']
+                group = entity_name.lower()
+                score_endpoint = "/".join(
+                    [Config.config.search_api.scoring_api_url.strip("/"), "score"]
+                )
+                # Limit and skip filter have to be handled by the scoring api because icat
+                # can not apply limit and/or skip filter on records ordered by score
+                # (there is no concept of scoring in ICAT)
+                limit = 0
+                for i, filter_ in enumerate(filters):
+                    if isinstance(filter_, SearchAPILimitFilter):
+                        limit = filter_.limit_value
+                        # Remove the filter to prevent it from being applied to the icat query
+                        filters.pop(i)
+                        break
+                offset = 0
+                for i, filter_ in enumerate(filters):
+                    if isinstance(filter_, SearchAPISkipFilter):
+                        offset = filter_.skip_value
+                        # Remove the filter to prevent it from being applied to the icat query
+                        filters.pop(i)
+                        break
+
+                # Get scored items
+                scoring_response = requests.post(
+                    score_endpoint,
+                    json={"query": query, "limit": limit, "offset": offset, "group": group}
+                ).json()
+                if scoring_response.get('scores'):
+                    records_pids = [{'pid': score_info['itemId']}
+                                    for score_info in scoring_response.get('scores')]
+                    records_scores = {score_info['itemId']: score_info['score']
+                                      for score_info in scoring_response.get('scores')}
+
+                    # Create nested where filter to match only the scored records
+                    where_filter = {"or": records_pids}
+                    nested_where = SearchAPIQueryFilterFactory.get_where_filter(
+                        where_filter, entity_name)[0]
+
+                    # Add new nested filter
+                    for i, filter_ in enumerate(filters):
+                        # Merge the new nested filter with the WhereFilter/Nested filter already existing
+                        if type(filter_) in (NestedWhereFilters, SearchAPIWhereFilter):
+                            filters.pop(i)
+                            filters.append(NestedWhereFilters(filter_, nested_where, 'and'))
+                            break
+                    else:
+                        filters.append(nested_where)
+                    panosc_data = method(*args, **kwargs)
+
+                    # Add scores to the returned records
+                    for record in panosc_data:
+                        record['score'] = records_scores[record.get('pid')]
+                else:  # Scoring-api does not return any item
+                    panosc_data = []
+            else:
+                raise SearchAPIError("Missing scoring API configuration, `scoring_api_url`"
+                                     " is not configured in `config.json` file")
+        else:
+            panosc_data = method(*args, **kwargs)
+            if Config.config.search_api.zero_if_score_not_triggered:
+                for record in panosc_data:
+                    record['score'] = 0
+        return panosc_data
+
+    return wrapper_scoring_handling
 
 
 def search_api_error_handling(method):
@@ -74,6 +165,7 @@ def search_api_error_handling(method):
     return wrapper_error_handling
 
 
+@scoring_assignment
 @client_manager
 def get_search(entity_name, filters):
     """

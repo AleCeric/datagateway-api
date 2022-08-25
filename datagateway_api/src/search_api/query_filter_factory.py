@@ -57,13 +57,8 @@ class SearchAPIQueryFilterFactory(QueryFilterFactory):
                         ),
                     )
                 elif filter_name == "query":
-                    # For the scoring api
-                    log.info("query JSON object found")
-                    query_filters.extend(
-                        SearchAPIQueryFilterFactory.get_where_filter(
-                            {"text": filter_input}, entity_name, related_entity_name,
-                        ),
-                    )
+                    log.info("query (i.e. scoring trigger) JSON object found")
+                    pass  # Will be manage by scoring API decorator
                 elif filter_name == "limit":
                     log.info("limit JSON object found")
                     query_filters.append(SearchAPILimitFilter(filter_input))

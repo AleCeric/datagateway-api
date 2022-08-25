@@ -16,6 +16,8 @@
         "mechanism": "anon",
         "username": "",
         "password": ""
+        "scoring_api_url": "http://localhost:8000",
+        "zero_if_score_not_triggered": true
     },
     "flask_reloader": false,
     "log_level": "WARN",
