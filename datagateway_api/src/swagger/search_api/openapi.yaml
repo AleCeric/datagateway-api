@@ -670,6 +670,341 @@ paths:
       summary: Count Instruments
       tags:
       - Instrument
+  /search-api/techniques:
+    get:
+      description: Retrieves a list of Technique objects
+      parameters:
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Technique'
+                type: array
+          description: Success - returns Techniques that satisfy the filter
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Get Techniques
+      tags:
+      - Technique
+  /search-api/techniques/{pid}:
+    get:
+      description: Retrieves a Technique object with the matching pid
+      parameters:
+      - description: The pid of the entity to retrieve
+        in: path
+        name: pid
+        required: true
+        schema:
+          oneOf:
+          - type: string
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Technique'
+          description: Success - the matching Technique
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Find the Technique matching the given pid
+      tags:
+      - Technique
+  /search-api/techniques/count:
+    get:
+      description: Return the count of the Technique objects that would be retrieved
+        given the filters provided
+      parameters:
+      - $ref: '#/components/parameters/WHERE_FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: Success - The count of the Technique objects
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Count Techniques
+      tags:
+      - Technique
+  /search-api/Datasets:
+    get:
+      description: Retrieves a list of Dataset objects
+      parameters:
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Dataset'
+                type: array
+          description: Success - returns Datasets that satisfy the filter
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Get Datasets
+      tags:
+      - Dataset
+  /search-api/Datasets/{pid}:
+    get:
+      description: Retrieves a Dataset object with the matching pid
+      parameters:
+      - description: The pid of the entity to retrieve
+        in: path
+        name: pid
+        required: true
+        schema:
+          oneOf:
+          - type: string
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+          description: Success - the matching Dataset
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Find the Dataset matching the given pid
+      tags:
+      - Dataset
+  /search-api/Datasets/count:
+    get:
+      description: Return the count of the Dataset objects that would be retrieved
+        given the filters provided
+      parameters:
+      - $ref: '#/components/parameters/WHERE_FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: Success - The count of the Dataset objects
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Count Datasets
+      tags:
+      - Dataset
+  /search-api/Documents:
+    get:
+      description: Retrieves a list of Document objects
+      parameters:
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Document'
+                type: array
+          description: Success - returns Documents that satisfy the filter
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Get Documents
+      tags:
+      - Document
+  /search-api/Documents/{pid}:
+    get:
+      description: Retrieves a Document object with the matching pid
+      parameters:
+      - description: The pid of the entity to retrieve
+        in: path
+        name: pid
+        required: true
+        schema:
+          oneOf:
+          - type: string
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+          description: Success - the matching Document
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Find the Document matching the given pid
+      tags:
+      - Document
+  /search-api/Documents/count:
+    get:
+      description: Return the count of the Document objects that would be retrieved
+        given the filters provided
+      parameters:
+      - $ref: '#/components/parameters/WHERE_FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: Success - The count of the Document objects
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Count Documents
+      tags:
+      - Document
+  /search-api/Instruments:
+    get:
+      description: Retrieves a list of Instrument objects
+      parameters:
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Instrument'
+                type: array
+          description: Success - returns Instruments that satisfy the filter
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Get Instruments
+      tags:
+      - Instrument
+  /search-api/Instruments/{pid}:
+    get:
+      description: Retrieves a Instrument object with the matching pid
+      parameters:
+      - description: The pid of the entity to retrieve
+        in: path
+        name: pid
+        required: true
+        schema:
+          oneOf:
+          - type: string
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instrument'
+          description: Success - the matching Instrument
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Find the Instrument matching the given pid
+      tags:
+      - Instrument
+  /search-api/Instruments/count:
+    get:
+      description: Return the count of the Instrument objects that would be retrieved
+        given the filters provided
+      parameters:
+      - $ref: '#/components/parameters/WHERE_FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: Success - The count of the Instrument objects
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Count Instruments
+      tags:
+      - Instrument
+  /search-api/Techniques:
+    get:
+      description: Retrieves a list of Technique objects
+      parameters:
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Technique'
+                type: array
+          description: Success - returns Techniques that satisfy the filter
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Get Techniques
+      tags:
+      - Technique
+  /search-api/Techniques/{pid}:
+    get:
+      description: Retrieves a Technique object with the matching pid
+      parameters:
+      - description: The pid of the entity to retrieve
+        in: path
+        name: pid
+        required: true
+        schema:
+          oneOf:
+          - type: string
+      - $ref: '#/components/parameters/FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Technique'
+          description: Success - the matching Technique
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Find the Technique matching the given pid
+      tags:
+      - Technique
+  /search-api/Techniques/count:
+    get:
+      description: Return the count of the Technique objects that would be retrieved
+        given the filters provided
+      parameters:
+      - $ref: '#/components/parameters/WHERE_FILTER'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: Success - The count of the Technique objects
+        '400':
+          description: Bad request - Something was wrong with the request
+        '404':
+          description: No such record - Unable to find a record in ICAT
+      summary: Count Techniques
+      tags:
+      - Technique
   /search-api/datasets/{pid}/files:
     get:
       description: Retrieves a list of File objects for a given Dataset object
