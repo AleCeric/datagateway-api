@@ -24,10 +24,14 @@ class ConditionSettingQuery(Query):
             aggregate=aggregate,
             includes=includes,
         )
+        self._str_conditions = None
         self.setConditionsByString(str_conditions)
 
     def setConditionsByString(self, str_conditions):  # noqa: N802
-        self._str_conditions = str_conditions
+        if self._str_conditions:
+            self._str_conditions = " AND ".join([self._str_conditions, str_conditions])
+        else:
+            self._str_conditions = str_conditions
 
     @property
     def where_clause(self):
