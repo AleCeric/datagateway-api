@@ -100,6 +100,7 @@ def get_search(entity_name, filters):
 
     filter_handler = FilterOrderHandler()
     filter_handler.add_filters(filters)
+    filter_handler.merge_where_filters_with_nested_filter()
     filter_handler.add_icat_relations_for_panosc_non_related_fields(entity_name)
     filter_handler.add_icat_relations_for_non_related_fields_of_panosc_related_entities(
         entity_name,
@@ -172,6 +173,7 @@ def get_count(entity_name, filters):
 
     filter_handler = FilterOrderHandler()
     filter_handler.add_filters(filters)
+    filter_handler.merge_where_filters_with_nested_filter()
     filter_handler.merge_python_icat_limit_skip_filters()
     filter_handler.apply_filters(query)
 

@@ -7,9 +7,10 @@ from datagateway_api.src.datagateway_api.icat.filters import (
     PythonICATOrderFilter,
     PythonICATSkipFilter,
 )
+from datagateway_api.src.search_api.nested_where_filters import NestedWhereFilters
 
 if Config.config.search_api:
-    from datagateway_api.src.search_api.filters import SearchAPIIncludeFilter
+    from datagateway_api.src.search_api.filters import SearchAPIIncludeFilter, SearchAPIWhereFilter
     from datagateway_api.src.search_api.panosc_mappings import mappings
     from datagateway_api.src.search_api.query import SearchAPIQuery
 
@@ -132,6 +133,29 @@ class FilterOrderHandler(object):
         icat_relations = list(dict.fromkeys(icat_relations))
         if icat_relations:
             self.filters.append(PythonICATIncludeFilter(icat_relations))
+
+    def merge_where_filters_with_nested_filter(self):
+        """
+        When there is at least one NestedWhereFilter and one or more SearchAPIWhereFilter it merge all the second ones
+        with a nested filter in order to be considered.
+        It is need because in case of multiple where filter types only the nested ones will be considered (see the
+        "where" method of ConditionSettingQuery object)
+        """
+        # Get nested where filter if exists (return otherwise)
+        for query_filter in self.filters:
+            if isinstance(query_filter, NestedWhereFilters):
+                nested_filter = query_filter
+                self.filters.remove(query_filter)  # Nested filter will be added again later
+                break
+        else:
+            return
+        # Merge all where filters with the nested filter
+        for query_filter in self.filters:
+            if isinstance(query_filter, SearchAPIWhereFilter):
+                nested_filter = NestedWhereFilters(nested_filter, query_filter, "AND")
+        self.filters = list(filter(lambda fltr: not isinstance(fltr, SearchAPIWhereFilter), self.filters))
+        # Add nested filter (regardless it was actually modified)
+        self.filters.append(nested_filter)
 
     def merge_python_icat_limit_skip_filters(self):
         """
